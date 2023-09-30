@@ -2,10 +2,32 @@ import logging
 import requests
 from requests import Response
 from requests.exceptions import RequestException, Timeout
+import tempfile
 
 from ..models.models import DockerConfig
 
 logger = logging.getLogger(__name__)
+
+
+def get_client_cert(dockerconf: DockerConfig):
+    try:
+        ca = dockerconf.ca_cert
+
+        client_cert = dockerconf.client_cert.encode('utf-8')
+        client_cert_file = tempfile.NamedTemporaryFile(delete=False)
+        client_cert_file.write(client_cert)
+        client_cert_file.seek(0)
+
+        client_key = dockerconf.client_key.encode('utf-8')
+        client_key_file = tempfile.NamedTemporaryFile(delete=False)
+        client_key_file.write(client_key)
+        client_key_file.seek(0)
+
+        CERT = (client_cert_file.name, client_key_file.name)
+    except:
+        CERT = None
+    return CERT
+
 
 
 def do_request(docker: DockerConfig, url: str, headers: dict = None, method: str = "GET", data=None):
@@ -32,7 +54,7 @@ def do_request(docker: DockerConfig, url: str, headers: dict = None, method: str
         request_args['data'] = data
 
     if tls:
-        request_args['cert'] = (docker.client_cert, docker.client_key)
+        request_args['cert'] = get_client_cert(docker)
         request_args['verify'] = False
 
     logging.info(f'Request to Docker: {request_args["method"]} {request_args["url"]}')

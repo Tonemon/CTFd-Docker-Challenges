@@ -20,23 +20,21 @@ from .models.models import (DockerChallengeTracker, DockerConfig,
 from .models.service import DockerServiceChallengeType
 
 
-def __handle_file_upload(file_key, b_obj, attr_name):
+def handle_file_import(file_key: str, dockerconf: DockerConfig, attr_name: str):
+    """ Imports the `request` POST `file_key` contents into the `DockerConfig` using `attr_name`. """
     if file_key not in request.files:
-        setattr(b_obj, attr_name, '')
+        setattr(dockerconf, attr_name, '')
         return
 
     try:
         file_content = request.files[file_key].stream.read()
         if len(file_content) != 0:
-            tmp_file = tempfile.NamedTemporaryFile(mode="wb", dir="/tmp", delete=False)
-            tmp_file.write(file_content)
-            tmp_file.seek(0)
-            setattr(b_obj, attr_name, tmp_file.name)
+            setattr(dockerconf, attr_name, file_content)
             return
     except Exception as err:
-        print(err)
+        print(f"Error during file import: {err}")
+        setattr(dockerconf, attr_name, '')
 
-    setattr(b_obj, attr_name, '')
 
 
 def define_docker_admin(app):
@@ -59,9 +57,9 @@ def define_docker_admin(app):
             docker = DockerConfig.query.filter_by(id=1).first()
 
         if request.method == "POST":
-            __handle_file_upload('ca_cert', b, 'ca_cert')
-            __handle_file_upload('client_cert', b, 'client_cert')
-            __handle_file_upload('client_key', b, 'client_key')
+            handle_file_import('ca_cert', b, 'ca_cert')
+            handle_file_import('client_cert', b, 'client_cert')
+            handle_file_import('client_key', b, 'client_key')
 
             b.hostname = request.form['hostname']
 
