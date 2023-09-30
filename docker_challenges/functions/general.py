@@ -8,8 +8,7 @@ from ..models.models import DockerConfig
 logger = logging.getLogger(__name__)
 
 
-def do_request(docker: DockerConfig, url: str, headers: dict = None,
-               method: str = "GET", data: dict | str = None) -> list | Response:
+def do_request(docker: DockerConfig, url: str, headers: dict = None, method: str = "GET", data=None):
     tls = docker.tls_enabled
     prefix = "https" if tls else "http"
     host = docker.hostname
