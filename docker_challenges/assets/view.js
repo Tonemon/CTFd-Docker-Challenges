@@ -48,9 +48,12 @@ function get_docker_status(container,challenge_id) {
                 var data = '';
                 $.each(ports, function(x, port) {
                     port = String(port)
-                    data = data + 'Host: ' + item.host + ' Port: ' + port + '<br />';
+                    var slashindex = port.indexOf("/");
+                    var portnumber = port.slice(0, slashindex);
+                    var porttype = port.slice(slashindex + 1);
+                    data = data + '- <code>' + item.host + ' ' + portnumber + '</code> &nbsp; &nbsp; (' + porttype + ')<br>';
                 })
-                $('#docker_container').html('<pre>Docker Container Information:<br />' + data + '<div class="mt-2" id="' + String(item.instance_id).substring(0,10) + '_revert_container"></div>');
+                $('#docker_container').html('Available connections:<br>' + data + '<div class="mt-2" id="' + String(item.instance_id).substring(0,10) + '_revert_container"></div>');
                 var countDownDate = new Date(parseInt(item.revert_time) * 1000).getTime();
                 var x = setInterval(function() {
                     var now = new Date().getTime();
@@ -60,10 +63,10 @@ function get_docker_status(container,challenge_id) {
                     if (seconds < 10) {
                         seconds = "0" + seconds
                     }
-                    $("#" + String(item.instance_id).substring(0,10) + "_revert_container").html('Next Revert Available in ' + minutes + ':' + seconds);
+                    $("#" + String(item.instance_id).substring(0,10) + "_revert_container").html('<br><i>Next challenge reset is available in ' + minutes + ':' + seconds + '</i>');
                     if (distance < 0) {
                         clearInterval(x);
-                        $("#" + String(item.instance_id).substring(0,10) + "_revert_container").html('<a onclick="start_container(\'' + container + '\',\'' + challenge_id + '\');" class=\'btn btn-dark\'><small style=\'color:white;\'><i class="fas fa-redo"></i> Revert</small></a>');
+                        $("#" + String(item.instance_id).substring(0,10) + "_revert_container").html('<a onclick="start_container(\'' + container + '\',\'' + challenge_id + '\');" class=\'btn btn-dark\'><small style=\'color:white;\'><i class="fas fa-redo"></i> Reset challenge progress</small></a>');
                     }
                 }, 1000);
                 return false;
