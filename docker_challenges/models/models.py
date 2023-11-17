@@ -13,10 +13,10 @@ class DockerConfig(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     hostname = db.Column("hostname", db.String(64), index=True)
     tls_enabled = db.Column("tls_enabled", db.Boolean, default=False, index=True)
-    ca_cert = db.Column("ca_cert", db.String(2200), index=True)
-    client_cert = db.Column("client_cert", db.String(2000), index=True)
-    client_key = db.Column("client_key", db.String(3300), index=True)
-    repositories = db.Column("repositories", db.String(1024), index=True)
+    ca_cert = db.Column("ca_cert", db.String(4200), index=True)
+    client_cert = db.Column("client_cert", db.String(4000), index=True)
+    client_key = db.Column("client_key", db.String(4300), index=True)
+    repositories = db.Column("repositories", db.String(2048), index=True)
 
 
 class DockerChallengeTracker(db.Model):
